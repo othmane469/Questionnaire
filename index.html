@@ -1870,13 +1870,15 @@
             if (val === null || val === undefined || val === '') return false;
             if (Array.isArray(val)) return val.length > 0;
             if (typeof val === 'object') {
-                // For radio with "Other" - check if selected or has "other" value
+                // For radio/checkbox with "Other" field
                 if (val.selected !== undefined) {
-                    return val.selected.length > 0 || (val.other !== undefined && val.other !== '');
+                    // Has selected options or has "Other" text
+                    return (val.selected && val.selected.length > 0) ||
+                           (val.other !== undefined && val.other !== undefined && val.other !== '');
                 }
-                // For checkbox with "Other"
-                if (val.selected !== undefined) {
-                    return val.selected.length > 0 || (val.other !== undefined && val.other !== '');
+                // For object with clarification
+                if (val.clarification !== undefined) {
+                    return val.clarification !== undefined && val.clarification !== '';
                 }
                 return false;
             }
