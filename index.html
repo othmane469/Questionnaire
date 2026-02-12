@@ -319,7 +319,7 @@
 
         .checkbox-item {
             display: flex;
-            align-items: center;
+            align-items: flex-start;
             gap: 0.5rem;
         }
 
@@ -327,6 +327,37 @@
             width: 18px;
             height: 18px;
             cursor: pointer;
+            margin-top: 2px;
+        }
+
+        .other-field {
+            margin-top: 0.5rem;
+            margin-left: 1.8rem;
+            padding: 0.5rem;
+            border: 1px solid var(--gray-300);
+            border-radius: 4px;
+            background: var(--gray-50);
+            font-size: 0.95rem;
+            display: none;
+        }
+
+        .other-field.show {
+            display: block;
+        }
+
+        .other-field:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+        }
+
+        .clarification-field {
+            margin-top: 1rem;
+            padding: 0.75rem;
+            border: 1px dashed var(--gray-300);
+            border-radius: 6px;
+            background: #fffbeb0;
+            font-size: 0.95rem;
         }
 
         .radio-group {
@@ -633,7 +664,7 @@
                             id: "A2_revenue",
                             type: "radio",
                             label: "Comment générez-vous des revenus avec K-NET ?",
-                            options: ["Frais de licence unique", "Abonnement mensuel SaaS", "Frais par transaction", "% des projets financés", "Autre"]
+                            options: ["Frais de licence unique", "Abonnement mensuel SaaS", "Frais par transaction", "% des projets financés", "Autre (précisez)"]
                         },
                         {
                             id: "A2_revenue_detail",
@@ -652,7 +683,8 @@
                             id: "A3_data_usage",
                             type: "checkbox",
                             label: "KardaTech peut-elle utiliser les données agrégées pour :",
-                            options: ["Benchmarking", "Amélioration produit", "Vente d'insights", "Marketing"]
+                            options: ["Benchmarking", "Amélioration produit", "Vente d'insights", "Marketing"],
+                            allowClarification: true
                         }
                     ]
                 },
@@ -726,7 +758,8 @@
                             id: "C1_connectivity",
                             type: "checkbox",
                             label: "Options de connectivité :",
-                            options: ["RS485 filaire", "Ethernet", "WiFi", "4G/LTE", "LoRaWAN", "Autre"]
+                            options: ["RS485 filaire", "Ethernet", "WiFi", "4G/LTE", "LoRaWAN", "Autre (précisez)"],
+                            allowClarification: true
                         },
                         {
                             id: "C2_future_devices",
@@ -1034,14 +1067,16 @@
                             type: "textarea",
                             label: "Dans 2 ans, pourquoi KardaTech aura gagné ? (Meilleure UX, Données précises, Confiance banques, Déploiement rapide, Coût faible, Autre)",
                             placeholder: "Raison principale: ...\nPourquoi: ...\nExemple: ...\n",
-                            multiline: true
+                            multiline: true,
+                            allowClarification: true
                         },
                         {
                             id: "I2_failure",
                             type: "textarea",
                             label: "Qu'est-ce qui causerait l'échec de K-NET ? (5 risques avec probabilité et atténuation, signes avant-coureurs)",
                             placeholder: "Risque 1: ...\nProbabilité: ...\nAtténuation: ...\n\n(répéter pour 5 risques)\n\nSignes avant-coureurs: ...\nCadence: ...\n",
-                            multiline: true
+                            multiline: true,
+                            allowClarification: true
                         }
                     ]
                 },
@@ -1555,6 +1590,7 @@
                 } else if (q.type === 'radio') {
                     const group = document.createElement('div');
                     group.className = 'radio-group';
+
                     q.options.forEach(opt => {
                         const item = document.createElement('label');
                         item.className = 'radio-item';
@@ -1562,36 +1598,175 @@
                         radio.type = 'radio';
                         radio.name = q.id;
                         radio.value = opt;
-                        radio.checked = savedValue === opt;
-                        radio.onchange = () => autoSave(q.id, opt);
+
+                        // Check if this is the selected value (handle "Other" text)
+                        const isOtherOption = opt.toLowerCase().includes('autre') || opt.toLowerCase().includes('autre');
+                        if (isOtherOption && typeof savedValue === 'object' && savedValue !== null) {
+                            radio.checked = savedValue.selected === opt;
+                        } else {
+                            radio.checked = savedValue === opt;
+                        }
+
+                        radio.onchange = () => {
+                            if (isOtherOption) {
+                                // Show "Other" text field when selected
+                                const otherField = document.getElementById(`${q.id}_other`);
+                                if (otherField) {
+                                    otherField.classList.add('show');
+                                    otherField.focus();
+                                }
+                                autoSave(q.id, { selected: opt, other: otherField.value });
+                            } else {
+                                // Hide "Other" text field when other options selected
+                                const otherField = document.getElementById(`${q.id}_other`);
+                                if (otherField) {
+                                    otherField.classList.remove('show');
+                                }
+                                autoSave(q.id, opt);
+                            }
+                        };
                         item.appendChild(radio);
                         item.appendChild(document.createTextNode(opt));
                         group.appendChild(item);
                     });
+
+                    // Add "Other" text field if "Autre" option exists
+                    const hasOtherOption = q.options.some(opt =>
+                        opt.toLowerCase().includes('autre') || opt.toLowerCase().includes('autre')
+                    );
+
+                    if (hasOtherOption) {
+                        const otherField = document.createElement('input');
+                        otherField.type = 'text';
+                        otherField.id = `${q.id}_other`;
+                        otherField.className = 'other-field';
+                        otherField.placeholder = 'Précisez...';
+                        otherField.value = (typeof savedValue === 'object' && savedValue !== null) ? savedValue.other || '' : '';
+
+                        // Show field if "Other" is currently selected
+                        if ((typeof savedValue === 'object' && savedValue.selected && savedValue.selected.toLowerCase().includes('autre')) ||
+                            (typeof savedValue === 'string' && savedValue.toLowerCase().includes('autre'))) {
+                            otherField.classList.add('show');
+                        }
+
+                        otherField.oninput = (e) => {
+                            const selectedRadio = group.querySelector('input[type="radio"]:checked');
+                            if (selectedRadio && selectedRadio.value.toLowerCase().includes('autre')) {
+                                autoSave(q.id, { selected: selectedRadio.value, other: e.target.value });
+                            }
+                        };
+
+                        const otherLabel = document.createElement('label');
+                        otherLabel.className = 'radio-item';
+                        otherLabel.htmlFor = `${q.id}_other`;
+                        otherLabel.style.width = '100%';
+                        otherLabel.style.marginLeft = '1.8rem';
+                        otherLabel.appendChild(otherField);
+                        group.appendChild(otherLabel);
+                    }
+
                     block.appendChild(group);
                 } else if (q.type === 'checkbox') {
                     const group = document.createElement('div');
                     group.className = 'checkbox-group';
                     const savedArray = Array.isArray(savedValue) ? savedValue : [];
+
                     q.options.forEach(opt => {
                         const item = document.createElement('label');
                         item.className = 'checkbox-item';
                         const checkbox = document.createElement('input');
                         checkbox.type = 'checkbox';
-                        checkbox.checked = savedArray.includes(opt);
+
+                        const isOtherOption = opt.toLowerCase().includes('autre') || opt.toLowerCase().includes('autre');
+
+                        // Check if this option is selected (in array or in object.other)
+                        let isChecked = false;
+                        if (isOtherOption && typeof savedValue === 'object') {
+                            isChecked = savedValue.selected && savedValue.selected.includes(opt);
+                        } else {
+                            isChecked = savedArray.includes(opt);
+                        }
+
+                        checkbox.checked = isChecked;
                         checkbox.onchange = () => {
-                            let newArray = [...savedArray];
-                            if (checkbox.checked) {
-                                newArray.push(opt);
-                            } else {
-                                newArray = newArray.filter(v => v !== opt);
+                            let newSelected = [];
+                            let otherValue = '';
+
+                            // Collect all checked options
+                            const allCheckboxes = group.querySelectorAll('input[type="checkbox"]');
+                            allCheckboxes.forEach(cb => {
+                                const label = cb.parentElement.textContent.trim();
+                                if (cb.checked) {
+                                    if (!label.toLowerCase().includes('autre')) {
+                                        newSelected.push(label);
+                                    }
+                                }
+                            });
+
+                            // Get "Other" field value if exists
+                            const otherField = document.getElementById(`${q.id}_other`);
+                            if (otherField) {
+                                otherValue = otherField.value;
+                                if (otherField.classList.contains('show')) {
+                                    newSelected.push('Autre');
+                                }
                             }
-                            autoSave(q.id, newArray);
+
+                            autoSave(q.id, newSelected.length > 0 || otherValue ? { selected: newSelected, other: otherValue } : []);
                         };
                         item.appendChild(checkbox);
                         item.appendChild(document.createTextNode(opt));
                         group.appendChild(item);
                     });
+
+                    // Add "Other" text field if "Autre" option exists
+                    const hasOtherOption = q.options.some(opt =>
+                        opt.toLowerCase().includes('autre') || opt.toLowerCase().includes('autre')
+                    );
+
+                    if (hasOtherOption) {
+                        const otherField = document.createElement('input');
+                        otherField.type = 'text';
+                        otherField.id = `${q.id}_other`;
+                        otherField.className = 'other-field';
+                        otherField.placeholder = "Précisez...";
+
+                        // Get current other value
+                        otherField.value = (typeof savedValue === 'object' && savedValue.other) ? savedValue.other : '';
+
+                        // Show field if "Other" is currently selected
+                        if (typeof savedValue === 'object' && savedValue.selected && savedValue.selected.some(s => s.toLowerCase().includes('autre'))) {
+                            otherField.classList.add('show');
+                        }
+
+                        otherField.oninput = (e) => {
+                            // Get all checked regular options
+                            const checkedOptions = [];
+                            const allCheckboxes = group.querySelectorAll('input[type="checkbox"]');
+                            allCheckboxes.forEach(cb => {
+                                const label = cb.parentElement.textContent.trim();
+                                if (cb.checked && !label.toLowerCase().includes('autre')) {
+                                    checkedOptions.push(label);
+                                }
+                            });
+
+                            // Build new value
+                            if (e.target.value.trim() || checkedOptions.length > 0) {
+                                autoSave(q.id, { selected: checkedOptions, other: e.target.value });
+                            } else {
+                                autoSave(q.id, checkedOptions);
+                            }
+                        };
+
+                        const otherLabel = document.createElement('label');
+                        otherLabel.className = 'checkbox-item';
+                        otherLabel.htmlFor = `${q.id}_other`;
+                        otherLabel.style.width = '100%';
+                        otherLabel.style.marginLeft = '1.8rem';
+                        otherLabel.appendChild(otherField);
+                        group.appendChild(otherLabel);
+                    }
+
                     block.appendChild(group);
                 } else if (q.type === 'table') {
                     const table = document.createElement('table');
@@ -1634,6 +1809,49 @@
                     block.appendChild(table);
                 }
 
+                // Add clarification/notes field if enabled for this question
+                if (q.allowClarification) {
+                    const clarificationDiv = document.createElement('div');
+                    clarificationDiv.className = 'form-group';
+
+                    const clarificationLabel = document.createElement('label');
+                    clarificationLabel.className = 'question-label';
+                    clarificationLabel.style.fontSize = '0.95rem';
+                    clarificationLabel.style.color = 'var(--gray-600)';
+                    clarificationLabel.textContent = '💬 Clarifications / Notes additionnelles (optionnel) :';
+
+                    const clarificationInput = document.createElement('textarea');
+                    clarificationInput.className = 'clarification-field';
+                    clarificationInput.placeholder = 'Ajoutez des notes, précisions, ou clarifications...';
+                    clarificationInput.rows = 3;
+
+                    // Get saved clarification value
+                    let savedClarification = '';
+                    if (typeof savedValue === 'object' && savedValue !== null) {
+                        savedClarification = savedValue.clarification || '';
+                    } else if (typeof savedValue === 'string') {
+                        // For backwards compatibility
+                        const existingClarification = answers[`${q.id}_clarification`];
+                        if (existingClarification) {
+                            savedClarification = existingClarification;
+                        }
+                    }
+
+                    clarificationInput.value = savedClarification;
+                    clarificationInput.oninput = (e) => {
+                        const currentAnswer = answers[q.id];
+                        if (typeof currentAnswer === 'object') {
+                            autoSave(q.id, { ...currentAnswer, clarification: e.target.value });
+                        } else {
+                            autoSave(`${q.id}_clarification`, e.target.value);
+                        }
+                    };
+
+                    clarificationDiv.appendChild(clarificationLabel);
+                    clarificationDiv.appendChild(clarificationInput);
+                    block.appendChild(clarificationDiv);
+                }
+
                 container.appendChild(block);
             });
         }
@@ -1647,6 +1865,25 @@
             updateProgress();
         }
 
+        // Helper function to check if answer is filled
+        function isAnswered(val) {
+            if (val === null || val === undefined || val === '') return false;
+            if (Array.isArray(val)) return val.length > 0;
+            if (typeof val === 'object') {
+                // For radio with "Other" - check if selected or has "other" value
+                if (val.selected !== undefined) {
+                    return val.selected.length > 0 || (val.other !== undefined && val.other !== '');
+                }
+                // For checkbox with "Other"
+                if (val.selected !== undefined) {
+                    return val.selected.length > 0 || (val.other !== undefined && val.other !== '');
+                }
+                return false;
+            }
+            if (typeof val === 'string') return val.trim() !== '';
+            return true;
+        }
+
         // Update progress
         function updateProgress() {
             let totalQuestions = 0;
@@ -1656,8 +1893,9 @@
                 totalQuestions += section.questions.length;
                 answeredQuestions += section.questions.filter(q => {
                     const val = answers[q.id];
-                    if (Array.isArray(val)) return val.length > 0;
-                    return val && val.trim() !== '';
+                    // Also check for clarification fields
+                    const hasClarification = answers[`${q.id}_clarification`];
+                    return isAnswered(val) || isAnswered(hasClarification);
                 }).length;
             }
 
@@ -1718,7 +1956,26 @@
                     md += `### Question ${idx + 1}\n\n`;
                     md += `${q.label}\n\n**Réponse:**\n`;
                     const val = answers[q.id];
-                    if (Array.isArray(val)) {
+
+                    // Handle object-based answers (radio/checkbox with "Other")
+                    if (typeof val === 'object' && val !== null) {
+                        if (val.selected !== undefined) {
+                            // Radio or checkbox with "Other"
+                            if (Array.isArray(val.selected) && val.selected.length > 0) {
+                                val.selected.forEach(v => md += `- ${v}\n`);
+                            }
+                            if (val.other && val.other.trim()) {
+                                md += `- **Autre:** ${val.other}\n`;
+                            }
+                        } else {
+                            md += `_Non répondu_\n`;
+                        }
+
+                        // Add clarification if exists
+                        if (val.clarification && val.clarification.trim()) {
+                            md += `\n**Notes/Clarifications:** ${val.clarification}\n`;
+                        }
+                    } else if (Array.isArray(val)) {
                         if (val.length > 0) {
                             val.forEach(v => md += `- ${v}\n`);
                         } else {
@@ -1729,6 +1986,13 @@
                     } else {
                         md += `_Non répondu_\n`;
                     }
+
+                    // Check for separate clarification field
+                    const clarification = answers[`${q.id}_clarification`];
+                    if (clarification && clarification.trim() && (typeof val !== 'object' || !val.clarification)) {
+                        md += `\n**Notes/Clarifications:** ${clarification}\n`;
+                    }
+
                     md += '\n---\n\n';
                 });
             }
@@ -1752,7 +2016,25 @@
                     txt += `\n[Question ${idx + 1}]\n${q.label}\n`;
                     txt += `[Réponse]:\n`;
                     const val = answers[q.id];
-                    if (Array.isArray(val)) {
+
+                    // Handle object-based answers (radio/checkbox with "Other")
+                    if (typeof val === 'object' && val !== null) {
+                        if (val.selected !== undefined) {
+                            if (Array.isArray(val.selected) && val.selected.length > 0) {
+                                val.selected.forEach(v => txt += `  - ${v}\n`);
+                            }
+                            if (val.other && val.other.trim()) {
+                                txt += `  [Autre]: ${val.other}\n`;
+                            }
+                        } else {
+                            txt += `  (Non répondu)\n`;
+                        }
+
+                        // Add clarification if exists
+                        if (val.clarification && val.clarification.trim()) {
+                            txt += `  [Notes/Clarifications]: ${val.clarification}\n`;
+                        }
+                    } else if (Array.isArray(val)) {
                         if (val.length > 0) {
                             val.forEach(v => txt += `  - ${v}\n`);
                         } else {
@@ -1762,6 +2044,12 @@
                         txt += `${val}\n`;
                     } else {
                         txt += `  (Non répondu)\n`;
+                    }
+
+                    // Check for separate clarification field
+                    const clarification = answers[`${q.id}_clarification`];
+                    if (clarification && clarification.trim() && (typeof val !== 'object' || !val.clarification)) {
+                        txt += `  [Notes/Clarifications]: ${clarification}\n`;
                     }
                 });
             }
