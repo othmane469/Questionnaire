@@ -1,0 +1,1833 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Questionnaire K-NET - Découverte Architecture</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #2563eb;
+            --primary-dark: #1e40af;
+            --success: #059669;
+            --warning: #d97706;
+            --danger: #dc2626;
+            --gray-50: #f9fafb;
+            --gray-100: #f3f4f6;
+            --gray-200: #e5e7eb;
+            --gray-300: #d1d5db;
+            --gray-600: #4b5563;
+            --gray-700: #374151;
+            --gray-900: #111827;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            line-height: 1.6;
+            color: var(--gray-900);
+            background: var(--gray-50);
+        }
+
+        .header {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: white;
+            padding: 2rem 0;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+
+        .header-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 2rem;
+        }
+
+        .header h1 {
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .header p {
+            opacity: 0.9;
+            font-size: 1.1rem;
+        }
+
+        .top-bar {
+            background: white;
+            border-bottom: 1px solid var(--gray-200);
+            padding: 1rem 0;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+
+        .top-bar-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .progress-info {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            flex: 1;
+        }
+
+        .progress-bar {
+            flex: 1;
+            max-width: 400px;
+            height: 8px;
+            background: var(--gray-200);
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: var(--success);
+            transition: width 0.3s ease;
+        }
+
+        .progress-text {
+            font-weight: 600;
+            color: var(--gray-700);
+            font-size: 0.9rem;
+        }
+
+        .actions {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 0.5rem 1rem;
+            border: none;
+            border-radius: 6px;
+            font-size: 0.9rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-dark);
+        }
+
+        .btn-success {
+            background: var(--success);
+            color: white;
+        }
+
+        .btn-success:hover {
+            background: #047857;
+        }
+
+        .btn-warning {
+            background: var(--warning);
+            color: white;
+        }
+
+        .btn-outline {
+            background: white;
+            color: var(--gray-700);
+            border: 1px solid var(--gray-300);
+        }
+
+        .btn-outline:hover {
+            background: var(--gray-50);
+        }
+
+        .btn-danger {
+            background: var(--danger);
+            color: white;
+        }
+
+        .main-content {
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 0 2rem;
+        }
+
+        .section-nav {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .section-card {
+            background: white;
+            border-radius: 8px;
+            padding: 1.5rem;
+            border: 1px solid var(--gray-200);
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .section-card:hover {
+            border-color: var(--primary);
+            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.15);
+            transform: translateY(-2px);
+        }
+
+        .section-card.completed {
+            border-left: 4px solid var(--success);
+        }
+
+        .section-card.in-progress {
+            border-left: 4px solid var(--warning);
+        }
+
+        .section-card h3 {
+            color: var(--primary);
+            margin-bottom: 0.5rem;
+            font-size: 1.1rem;
+        }
+
+        .section-card p {
+            color: var(--gray-600);
+            font-size: 0.9rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .section-badge {
+            display: inline-block;
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        .badge-success {
+            background: #d1fae5;
+            color: #065f46;
+        }
+
+        .badge-warning {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        .badge-default {
+            background: var(--gray-100);
+            color: var(--gray-600);
+        }
+
+        .question-section {
+            display: none;
+        }
+
+        .question-section.active {
+            display: block;
+        }
+
+        .section-header {
+            background: white;
+            padding: 2rem;
+            border-radius: 8px;
+            margin-bottom: 2rem;
+            border: 1px solid var(--gray-200);
+        }
+
+        .section-header h2 {
+            color: var(--primary);
+            margin-bottom: 1rem;
+        }
+
+        .section-header p {
+            color: var(--gray-600);
+        }
+
+        .question-block {
+            background: white;
+            padding: 2rem;
+            border-radius: 8px;
+            margin-bottom: 1.5rem;
+            border: 1px solid var(--gray-200);
+        }
+
+        .question-block h4 {
+            color: var(--gray-900);
+            margin-bottom: 1rem;
+            font-size: 1.1rem;
+        }
+
+        .question-label {
+            display: block;
+            font-weight: 600;
+            color: var(--gray-700);
+            margin-bottom: 0.5rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        input[type="text"],
+        input[type="email"],
+        input[type="date"],
+        input[type="number"],
+        textarea,
+        select {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid var(--gray-300);
+            border-radius: 6px;
+            font-size: 1rem;
+            transition: border-color 0.2s;
+        }
+
+        input:focus,
+        textarea:focus,
+        select:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+        }
+
+        textarea {
+            min-height: 120px;
+            resize: vertical;
+            font-family: inherit;
+        }
+
+        .checkbox-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .checkbox-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+        }
+
+        .radio-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        input[type="radio"] {
+            cursor: pointer;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1rem 0;
+        }
+
+        th, td {
+            padding: 0.75rem;
+            text-align: left;
+            border: 1px solid var(--gray-300);
+        }
+
+        th {
+            background: var(--gray-100);
+            font-weight: 600;
+            color: var(--gray-700);
+        }
+
+        .notes {
+            background: #fffbeb0;
+            border-left: 4px solid var(--warning);
+            padding: 1rem;
+            margin: 1rem 0;
+            border-radius: 4px;
+            font-size: 0.9rem;
+            color: #92400e;
+        }
+
+        .draft-notice {
+            background: #fef3c7;
+            border: 1px solid #fbbf24;
+            padding: 1rem 2rem;
+            margin: 1rem auto;
+            max-width: 1200px;
+            border-radius: 8px;
+            display: none;
+        }
+
+        .draft-notice.show {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .draft-notice-text {
+            flex: 1;
+        }
+
+        .draft-notice-text strong {
+            color: #92400e;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal.show {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 2rem;
+            border-radius: 12px;
+            max-width: 500px;
+            width: 90%;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+        }
+
+        .modal-content h3 {
+            margin-bottom: 1rem;
+            color: var(--gray-900);
+        }
+
+        .modal-actions {
+            display: flex;
+            gap: 0.5rem;
+            justify-content: flex-end;
+            margin-top: 1.5rem;
+        }
+
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 1.5rem;
+            }
+
+            .top-bar-content {
+                flex-direction: column;
+            }
+
+            .section-nav {
+                grid-template-columns: 1fr;
+            }
+
+            .main-content,
+            .header-content {
+                padding: 0 1rem;
+            }
+
+            table {
+                font-size: 0.85rem;
+            }
+
+            th, td {
+                padding: 0.5rem;
+            }
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        .breadcrumb {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 1.5rem;
+            flex-wrap: wrap;
+        }
+
+        .breadcrumb-item {
+            color: var(--gray-600);
+            cursor: pointer;
+        }
+
+        .breadcrumb-item:hover {
+            color: var(--primary);
+        }
+
+        .breadcrumb-separator {
+            color: var(--gray-400);
+        }
+
+        .breadcrumb-current {
+            color: var(--gray-900);
+            font-weight: 600;
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <div class="header">
+        <div class="header-content">
+            <h1>Questionnaire de Découverte K-NET</h1>
+            <p>Définition de l'architecture technique et des contraintes pour K-NET</p>
+        </div>
+    </div>
+
+    <!-- Draft Notice -->
+    <div id="draftNotice" class="draft-notice">
+        <div class="draft-notice-text">
+            <strong>💾 Brouillon Restauré</strong>
+            Vos réponses ont été restaurées depuis une sauvegarde précédente.
+        </div>
+        <button class="btn btn-danger" onclick="discardDraft()">Ignorer le Brouillon</button>
+    </div>
+
+    <!-- Top Bar -->
+    <div class="top-bar">
+        <div class="top-bar-content">
+            <div class="progress-info">
+                <span class="progress-text" id="progressText">0% complété</span>
+                <div class="progress-bar">
+                    <div class="progress-fill" id="progressFill" style="width: 0%"></div>
+                </div>
+            </div>
+            <div class="actions">
+                <button class="btn btn-success" onclick="saveDraft()">
+                    💾 Sauvegarder
+                </button>
+                <button class="btn btn-primary" onclick="showDownloadModal()">
+                    📥 Télécharger
+                </button>
+                <button class="btn btn-outline" onclick="showUploadModal()">
+                    📤 Importer
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <!-- Home View -->
+        <div id="homeView">
+            <div class="section-nav" id="sectionNav">
+                <!-- Sections will be rendered here -->
+            </div>
+        </div>
+
+        <!-- Question View -->
+        <div id="questionView" class="question-section">
+            <div class="breadcrumb" id="breadcrumb">
+                <span class="breadcrumb-item" onclick="goHome()">Accueil</span>
+                <span class="breadcrumb-separator">›</span>
+                <span class="breadcrumb-current" id="currentSectionTitle"></span>
+            </div>
+
+            <div class="section-header">
+                <h2 id="sectionTitle"></h2>
+                <p id="sectionDescription"></p>
+            </div>
+
+            <div id="questionsContainer">
+                <!-- Questions will be rendered here -->
+            </div>
+
+            <div class="actions" style="margin-top: 2rem; justify-content: center;">
+                <button class="btn btn-outline" onclick="goHome()">← Retour</button>
+                <button class="btn btn-success" onclick="saveAndContinue()">Sauvegarder et Continuer</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Download Modal -->
+    <div id="downloadModal" class="modal">
+        <div class="modal-content">
+            <h3>📥 Télécharger les Réponses</h3>
+            <p style="color: var(--gray-600); margin-bottom: 1rem;">Choisissez le format de téléchargement :</p>
+            <div class="form-group">
+                <button class="btn btn-primary" style="width: 100%; margin-bottom: 0.5rem;" onclick="downloadJSON()">
+                    📄 Télécharger en JSON (pour import ultérieur)
+                </button>
+                <button class="btn btn-outline" style="width: 100%; margin-bottom: 0.5rem;" onclick="downloadMarkdown()">
+                    📝 Télécharger en Markdown (pour lecture)
+                </button>
+                <button class="btn btn-outline" style="width: 100%;" onclick="downloadTxt()">
+                    📃 Télécharger en TXT (simple)
+                </button>
+            </div>
+            <div class="modal-actions">
+                <button class="btn btn-outline" onclick="closeModals()">Fermer</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Upload Modal -->
+    <div id="uploadModal" class="modal">
+        <div class="modal-content">
+            <h3>📤 Importer des Réponses</h3>
+            <p style="color: var(--gray-600); margin-bottom: 1rem;">Importez un fichier JSON précédemment téléchargé :</p>
+            <div class="form-group">
+                <input type="file" id="fileInput" accept=".json" onchange="handleFileUpload(event)">
+            </div>
+            <div class="modal-actions">
+                <button class="btn btn-outline" onclick="closeModals()">Annuler</button>
+                <button class="btn btn-primary" onclick="confirmUpload()">Importer</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Questionnaire Data Structure
+        const questionnaireData = {
+            meta: {
+                title: "Questionnaire de Découverte de l'Architecture K-NET",
+                version: "1.1",
+                dateStarted: "",
+                lastUpdated: "",
+                status: "not_started"
+            },
+            sections: {
+                A: {
+                    id: "A",
+                    title: "Contexte Métier & Clients",
+                    description: "Comprend les utilisateurs cibles, le modèle de revenus, et la propriété des données.",
+                    questions: [
+                        {
+                            id: "A1_users",
+                            type: "textarea",
+                            label: "Qui sont les utilisateurs PRINCIPAUX de K-NET par ordre de priorité ?",
+                            placeholder: "Priorité 1: [ex., Équipe opérations interne KardaTech]\nPriorité 2: [ex., Installateurs partenaires]\nPriorité 3: [ex., Clients finaux]\n...",
+                            multiline: true
+                        },
+                        {
+                            id: "A1_pain_points",
+                            type: "textarea",
+                            label: "Pour chaque utilisateur principal, quel est son point de douleur quotidien #1 que K-NET résout ?",
+                            placeholder: "Priorité 1: [Description]\nPriorité 2: [Description]\n...",
+                            multiline: true
+                        },
+                        {
+                            id: "A2_revenue",
+                            type: "radio",
+                            label: "Comment générez-vous des revenus avec K-NET ?",
+                            options: ["Frais de licence unique", "Abonnement mensuel SaaS", "Frais par transaction", "% des projets financés", "Autre"]
+                        },
+                        {
+                            id: "A2_revenue_detail",
+                            type: "textarea",
+                            label: "Détails du modèle de revenus (principal, secondaires, structure tarifaire)",
+                            placeholder: "Modèle Principal: ...\nSources Secondaires: ...\nStructure Tarifaire: ...",
+                            multiline: true
+                        },
+                        {
+                            id: "A3_data_ownership",
+                            type: "radio",
+                            label: "Qui possède les données dans K-NET lorsque sous licence à un installateur ?",
+                            options: ["KardaTech possède tout", "Chaque installateur possède ses données", "Le client possède ses données", "Hybride"]
+                        },
+                        {
+                            id: "A3_data_usage",
+                            type: "checkbox",
+                            label: "KardaTech peut-elle utiliser les données agrégées pour :",
+                            options: ["Benchmarking", "Amélioration produit", "Vente d'insights", "Marketing"]
+                        }
+                    ]
+                },
+                B: {
+                    id: "B",
+                    title: "Contraintes Techniques",
+                    description: "Exigences temps réel, capacités de contrôle, et scénarios hors ligne.",
+                    questions: [
+                        {
+                            id: "B1_realtime",
+                            type: "table",
+                            label: "Que signifie 'temps réel' pour K-NET dans différents scénarios ?",
+                            columns: ["Scénario", "Tolérance Latence", "Est Critique ?", "Impact si Non Respecté"],
+                            rows: [
+                                ["Actualisation tableau de bord", "", "", ""],
+                                ["Détection panne onduleur", "", "", ""],
+                                ["Calcul facturation", "", "", ""],
+                                ["Rapports bancaires", "", "", ""],
+                                ["Signaux réseau V2G", "", "", ""]
+                            ]
+                        },
+                        {
+                            id: "B2_control",
+                            type: "table",
+                            label: "Capacités de K-NET (lire vs contrôler)",
+                            columns: ["Capacité", "Horizon", "Priorité"],
+                            rows: [
+                                ["Lire données production", "", ""],
+                                ["Envoyer commandes limitation", "", ""],
+                                ["Dispatcher batteries", "", ""],
+                                ["Contrôler bornes VE", "", ""],
+                                ["Déconnecter actifs distance", "", ""]
+                            ]
+                        },
+                        {
+                            id: "B2_risk",
+                            type: "textarea",
+                            label: "Que se passe-t-il si K-NET envoie une mauvaise commande ? (responsabilité, sécurité, etc.)",
+                            placeholder: "Décrivez les risques et conséquences...",
+                            multiline: true
+                        },
+                        {
+                            id: "B3_offline",
+                            type: "textarea",
+                            label: "Que se passe-t-il lorsqu'un site perd sa connectivité internet ?",
+                            placeholder: "Durée hors ligne acceptable : ...\nTampon local : ...\nCalcul de bord : ...\nFacturation hors ligne : ...",
+                            multiline: true
+                        }
+                    ]
+                },
+                C: {
+                    id: "C",
+                    title: "Paysage Appareils & Intégrations",
+                    description: "Écosystème matériel et intégrations systèmes externes.",
+                    questions: [
+                        {
+                            id: "C1_inverters",
+                            type: "textarea",
+                            label: "Marques/Modèles d'onduleurs au Maroc et protocoles/APIs",
+                            placeholder: "Marques/Modèles:\n- Huawei SUN2000\n- ...\n\nProtocoles:\n- Modbus RTU\n- ...\n",
+                            multiline: true
+                        },
+                        {
+                            id: "C1_meters",
+                            type: "textarea",
+                            label: "Compteurs intelligents - Marques/Modèles et protocoles",
+                            placeholder: "Marques/Modèles:\n- ...\n\nProtocoles:\n- ...\n",
+                            multiline: true
+                        },
+                        {
+                            id: "C1_connectivity",
+                            type: "checkbox",
+                            label: "Options de connectivité :",
+                            options: ["RS485 filaire", "Ethernet", "WiFi", "4G/LTE", "LoRaWAN", "Autre"]
+                        },
+                        {
+                            id: "C2_future_devices",
+                            type: "textarea",
+                            label: "Appareils attendus dans 1-2 ans (batteries, bornes VE, pompes à chaleur, etc.)",
+                            placeholder: "Batteries: ...\nBornes VE: ...\n...",
+                            multiline: true
+                        },
+                        {
+                            id: "C2_banking",
+                            type: "textarea",
+                            label: "Intégrations bancaires (banques cibles, Green Invest, etc.)",
+                            placeholder: "Banques Cibles:\n- ...\n\nPlateforme Green Invest: ...\n",
+                            multiline: true
+                        },
+                        {
+                            id: "C2_payment",
+                            type: "textarea",
+                            label: "Systèmes de paiement (passerelles, prélèvement, APIs)",
+                            placeholder: "Passerelles: ...\nPrélèvement: ...\nAPIs: ...\n",
+                            multiline: true
+                        },
+                        {
+                            id: "C2_utility",
+                            type: "textarea",
+                            label: "Intégrations utilitaires/gouvernementales (ONEE, ANRE, AMEE)",
+                            placeholder: "ONEE: ...\nANRE: ...\nAMEE: ...\n",
+                            multiline: true
+                        },
+                        {
+                            id: "C2_esg",
+                            type: "textarea",
+                            label: "Systèmes carbone/ESG (registres, plateformes de rapport, MRV)",
+                            placeholder: "Registres Carbone: ...\nESG Reporting: ...\nMRV: ...\n",
+                            multiline: true
+                        }
+                    ]
+                },
+                D: {
+                    id: "D",
+                    title: "Modèle Financier & Risque",
+                    description: "Responsabilité, marges d'erreur, complexité de facturation, conformité.",
+                    questions: [
+                        {
+                            id: "D1_liability",
+                            type: "textarea",
+                            label: "Qui absorbe la différence si K-NET se trompe ? Marge d'erreur acceptable ? Résolution des litiges ?",
+                            placeholder: "Responsabilité: ...\nMarge erreur: ...\nLitiges: ...\nAssurance: ...\n",
+                            multiline: true
+                        },
+                        {
+                            id: "D1_scenarios",
+                            type: "textarea",
+                            label: "Scénarios d'erreur (sous-rapport 10%, sur-rapport 10%, hors ligne 48h)",
+                            placeholder: "Scénario 1: ...\nScénario 2: ...\nScénario 3: ...\n",
+                            multiline: true
+                        },
+                        {
+                            id: "D2_pricing",
+                            type: "textarea",
+                            label: "Complexité tarifaire (tarif plat, paliers, temps d'usage, garanties performance)",
+                            placeholder: "Tarif plat: ...\nPaliers: ...\nTemps d'usage: ...\nGaranties: ...\n",
+                            multiline: true
+                        },
+                        {
+                            id: "D2_advanced_pricing",
+                            type: "textarea",
+                            label: "Fonctions tarifaires avancées (inflation, change, minimums, saisonnier)",
+                            placeholder: "Indexation inflation: ...\nChange: ...\nMinimums: ...\nSaisonnier: ...\n",
+                            multiline: true
+                        },
+                        {
+                            id: "D2_formula",
+                            type: "textarea",
+                            label: "Collez votre formule tarifaire contractuelle la PLUS complexe ici",
+                            placeholder: "Incluez toutes variables, conditions, cas limites...",
+                            multiline: true
+                        },
+                        {
+                            id: "D3_residency",
+                            type: "textarea",
+                            label: "Résidence des données (doivent être stockées au Maroc ? certifications ?)",
+                            placeholder: "Stockage Maroc: ...\nCertifications: ...\n",
+                            multiline: true
+                        },
+                        {
+                            id: "D3_audit",
+                            type: "textarea",
+                            label: "Traçabilité d'audit requise et période de rétention",
+                            placeholder: "Traçabilité: ...\nRétention: ...\n",
+                            multiline: true
+                        },
+                        {
+                            id: "D3_reporting",
+                            type: "textarea",
+                            label: "Exigences de rapport (fréquence, données, destinataires)",
+                            placeholder: "Fréquence: ...\nDonnées: ...\nDestinataires: ...\n",
+                            multiline: true
+                        },
+                        {
+                            id: "D3_banking_reg",
+                            type: "textarea",
+                            label: "Réglementations bancaires (processeur paiement, licences, AML/KYC)",
+                            placeholder: "Processeur paiement: ...\nLicences: ...\nAML/KYC: ...\n",
+                            multiline: true
+                        }
+                    ]
+                },
+                E: {
+                    id: "E",
+                    title: "Échelle & Performance",
+                    description: "Trajectoire de croissance et rétention des données.",
+                    questions: [
+                        {
+                            id: "E1_growth",
+                            type: "table",
+                            label: "Objectifs de croissance réalistes (Année 1, 2, 3, 5)",
+                            columns: ["Métrique", "Année 1", "Année 2", "Année 3", "Année 5"],
+                            rows: [
+                                ["Nombre d'Actifs (sites)", "", "", "", ""],
+                                ["Capacité Installée Totale (MW)", "", "", "", ""],
+                                ["Nombre de Clients Finaux", "", "", "", ""],
+                                ["Nombre d'Installateurs Partenaires", "", "", "", ""],
+                                ["Points de Données Par Jour", "", "", "", ""]
+                            ]
+                        },
+                        {
+                            id: "E1_assumptions",
+                            type: "textarea",
+                            label: "Hypothèses de croissance (qu'est-ce qui alimente ces chiffres ? accélérateurs ? ralentisseurs ?)",
+                            placeholder: "Facteurs: ...\nAccélérateurs: ...\nRalentisseurs: ...\n",
+                            multiline: true
+                        },
+                        {
+                            id: "E2_retention",
+                            type: "table",
+                            label: "Période de rétention des différents types de données",
+                            columns: ["Type de Donnée", "Rétention", "Stockage Chaud/Tié/Froid", "Raison"],
+                            rows: [
+                                ["Lectures brutes (seconde)", "", "", ""],
+                                ["Lectures brutes (minute)", "", "", ""],
+                                ["Données horaires agrégées", "", "", ""],
+                                ["Données quotidiennes agrégées", "", "", ""],
+                                ["Dossiers financiers", "", "", ""],
+                                ["Contrats documents juridiques", "", "", ""],
+                                ["PII Clients", "", "", ""],
+                                ["Journaux d'audit", "", "", ""],
+                                ["Alertes notifications", "", "", ""]
+                            ]
+                        },
+                        {
+                            id: "E2_storage_def",
+                            type: "textarea",
+                            label: "Définitions de stockage (chaud, tiède, froid)",
+                            placeholder: "Chaud: ...\nTiède: ...\nFroid: ...\n",
+                            multiline: true
+                        }
+                    ]
+                },
+                F: {
+                    id: "F",
+                    title: "Équipe & Ressources",
+                    description: "Équipe de développement, opérations, budget infrastructure, délais.",
+                    questions: [
+                        {
+                            id: "F1_team",
+                            type: "textarea",
+                            label: "Équipe actuelle (backend, frontend, data, devops, produit, QA)",
+                            placeholder: "Backend: ...\nFrontend: ...\nData: ...\nDevOps: ...\nProduit: ...\nQA: ...\n",
+                            multiline: true
+                        },
+                        {
+                            id: "F1_expertise",
+                            type: "textarea",
+                            label: "Expertise technologique (connues, à apprendre, n'utilisera pas)",
+                            placeholder: "Connues: ...\nÀ apprendre: ...\nN'utilisera pas: ...\n",
+                            multiline: true
+                        },
+                        {
+                            id: "F1_partners",
+                            type: "textarea",
+                            label: "Partenaires externes (offshore, agences, consultants)",
+                            placeholder: "Offshore: ...\nAgences: ...\n",
+                            multiline: true
+                        },
+                        {
+                            id: "F1_hiring",
+                            type: "textarea",
+                            label: "Plans d'embauche (budget 12 mois, postes à pourvoir)",
+                            placeholder: "Budget: ...\nPostes:\n- ...\n",
+                            multiline: true
+                        },
+                        {
+                            id: "F2_ops",
+                            type: "textarea",
+                            label: "Équipe opérations (DevOps/SRE, astreinte 24/7, réponse incidents)",
+                            placeholder: "DevOps/SRE: ...\nAstreinte: ...\nIncidents 3h: ...\n",
+                            multiline: true
+                        },
+                        {
+                            id: "F2_support",
+                            type: "textarea",
+                            label: "Support client (qui, comment, temps de réponse)",
+                            placeholder: "Qui: ...\nCanal: ...\nTemps réponse: ...\n",
+                            multiline: true
+                        },
+                        {
+                            id: "F3_budget",
+                            type: "textarea",
+                            label: "Budget infrastructure (mensuel année 1, croissance, contraintes)",
+                            placeholder: "Mensuel: ...\nCroissance: ...\nContraintes cloud/région/verrouillage/open-source: ...\n",
+                            multiline: true
+                        },
+                        {
+                            id: "F4_deadlines",
+                            type: "textarea",
+                            label: "Délais stricts (pilote, partenaire, banque, conformité, autres)",
+                            placeholder: "Pilote: ...\nPartenaire: ...\nBanque: ...\nConformité: ...\nAutres: ...\n",
+                            multiline: true
+                        },
+                        {
+                            id: "F4_reality",
+                            type: "textarea",
+                            label: "Vérification réalisme (flexibilité ? conséquences ? délai PLUS critique ?)",
+                            placeholder: "Flexibilité: ...\nConséquences: ...\nPlus critique: ...\n",
+                            multiline: true
+                        }
+                    ]
+                },
+                G: {
+                    id: "G",
+                    title: "Sécurité & Confiance",
+                    description: "Modèle de menace, sécurité bancaire, contrôle d'accès.",
+                    questions: [
+                        {
+                            id: "G1_threats",
+                            type: "textarea",
+                            label: "Classez les menaces de 1 (plus préoccupant) à 5, et élaborez le top 3",
+                            placeholder: "Classement:\n[ ] Fuite données\n[ ] Manipulation données\n...\n\nTop 3:\n#1: ...\n#2: ...\n#3: ...\n",
+                            multiline: true
+                        },
+                        {
+                            id: "G2_banking_security",
+                            type: "textarea",
+                            label: "Normes de sécurité requises par les banques (SOC 2, pénétration, auditeurs, ISO)",
+                            placeholder: "SOC 2: ...\nPénétration: ...\nAuditeurs: ...\nNorme minimum: ...\n",
+                            multiline: true
+                        },
+                        {
+                            id: "G2_integrity",
+                            type: "textarea",
+                            label: "Intégrité des données (prouver non altération, contestation client)",
+                            placeholder: "Preuve non altération: ...\nContestation: ...\n",
+                            multiline: true
+                        },
+                        {
+                            id: "G3_roles",
+                            type: "textarea",
+                            label: "Définissez chaque rôle (Admin KardaTech, Opérations, Installateur, Client, Banque, Auditeur) - peut voir/faire",
+                            placeholder: "Rôle: Admin KardaTech\nPeut voir: ...\nPeut faire: ...\n\n(répéter pour chaque rôle)\n",
+                            multiline: true
+                        }
+                    ]
+                },
+                H: {
+                    id: "H",
+                    title: "Différenciation Concurrentielle",
+                    description: "Capacités uniques et services tiers à acheter.",
+                    questions: [
+                        {
+                            id: "H1_unique",
+                            type: "textarea",
+                            label: "Que doit faire K-NET que les produits standards ne peuvent pas ? (Pourquoi pas solaire/fintech/IoT standards)",
+                            placeholder: "Monitoring solaire manque: ...\nFintech pas adapté car: ...\nIoT générique gap: ...\n\nCapacités K-NET:\n1. ...\n2. ...\n",
+                            multiline: true
+                        },
+                        {
+                            id: "H2_buy",
+                            type: "checkbox",
+                            label: "Services tiers à utiliser (cartographie, météo, paiement, notifications, auth, analyses)",
+                            options: [
+                                "Google Maps", "Mapbox", "OpenStreetMap",
+                                "OpenWeatherMap", "MétéoFrance", "Local météo",
+                                "Stripe", "PayPal", "CMI", "APIs locales",
+                                "SendGrid", "Twilio", "SMS local", "Push",
+                                "Auth0", "Firebase", "Keycloak", "Custom",
+                                "Google Analytics", "Mixpanel", "Amplitude", "Custom"
+                            ]
+                        },
+                        {
+                            id: "H2_philosophy",
+                            type: "radio",
+                            label: "Philosophie d'intégration :",
+                            options: ["Acheter plutôt que construire (SaaS)", "Construire plutôt qu'acheter (interne)", "Hybride (construire cœur, acheter périphériques)"]
+                        }
+                    ]
+                },
+                I: {
+                    id: "I",
+                    title: "Questions Stratégiques",
+                    description: "Pourquoi K-NET gagnera ? Qu'est-ce qui pourrait causer l'échec ?",
+                    questions: [
+                        {
+                            id: "I1_success",
+                            type: "textarea",
+                            label: "Dans 2 ans, pourquoi KardaTech aura gagné ? (Meilleure UX, Données précises, Confiance banques, Déploiement rapide, Coût faible, Autre)",
+                            placeholder: "Raison principale: ...\nPourquoi: ...\nExemple: ...\n",
+                            multiline: true
+                        },
+                        {
+                            id: "I2_failure",
+                            type: "textarea",
+                            label: "Qu'est-ce qui causerait l'échec de K-NET ? (5 risques avec probabilité et atténuation, signes avant-coureurs)",
+                            placeholder: "Risque 1: ...\nProbabilité: ...\nAtténuation: ...\n\n(répéter pour 5 risques)\n\nSignes avant-coureurs: ...\nCadence: ...\n",
+                            multiline: true
+                        }
+                    ]
+                },
+                J: {
+                    id: "J",
+                    title: "Définitions des Priorités",
+                    description: "La chose LA PLUS importante, fonctionnalité critique, périmètre MVP, métriques succès.",
+                    questions: [
+                        {
+                            id: "J1_one_thing",
+                            type: "textarea",
+                            label: "Si vous ne pouviez faire UNE seule chose correctement, quelle est-elle ? (Pourquoi plus important ? Que sacrifier ?)",
+                            placeholder: "La chose: ...\nPourquoi: ...\nSacrifice: ...\n",
+                            multiline: true
+                        },
+                        {
+                            id: "J1_critical",
+                            type: "textarea",
+                            label: "Quelle est la fonctionnalité qui, si manquante, rend K-NET inutile ? (Pourquoi non-négociable ? Conséquences ?)",
+                            placeholder: "Fonctionnalité: ...\nPourquoi: ...\nConséquences: ...\n",
+                            multiline: true
+                        },
+                        {
+                            id: "J2_mvp",
+                            type: "textarea",
+                            label: "Périmètre MVP (DOIT être inclus vs peut attendre V2 vs ne sera JAMAIS construit)",
+                            placeholder: "DOIT:\n1. ...\n\nV2:\n1. ...\n\nJAMAIS:\n1. ...\n",
+                            multiline: true
+                        },
+                        {
+                            id: "J3_metrics",
+                            type: "textarea",
+                            label: "Métriques de succès (techniques, métier, financières)",
+                            placeholder: "Techniques:\n- Disponibilité: ...\n- Précision données: ...\n- Temps réponse API: ...\n\nMétier:\n- Temps intégration partenaire: ...\n- Temps déploiement site: ...\n\nFinancières:\n- Coût/site/mois: ...\n- Seuil rentabilité: ...\n",
+                            multiline: true
+                        }
+                    ]
+                },
+                K: {
+                    id: "K",
+                    title: "Expérience Utilisateur & Interface",
+                    description: "Focus plateforme, compétence utilisateur, style tableau de bord.",
+                    questions: [
+                        {
+                            id: "K1_platforms",
+                            type: "table",
+                            label: "Plateforme interface principale pour chaque type d'utilisateur",
+                            columns: ["Type Utilisateur", "Appareil Principal", "Secondaire", "Terrain/Distant"],
+                            rows: [
+                                ["Admin KardaTech", "", "", ""],
+                                ["Opérations KardaTech", "", "", ""],
+                                ["Installateur Partenaire", "", "", ""],
+                                ["Techniciens Installateurs", "", "", ""],
+                                ["Client Final", "", "", ""],
+                                ["Banque/Investisseur", "", "", ""]
+                            ]
+                        },
+                        {
+                            id: "K1_mobile",
+                            type: "textarea",
+                            label: "Exigences mobiles (apps natives, web responsive, hors ligne)",
+                            placeholder: "Apps natives: ...\nResponsive: ...\nHors ligne: ...\n",
+                            multiline: true
+                        },
+                        {
+                            id: "K2_proficiency",
+                            type: "textarea",
+                            label: "Compétence technique utilisateurs (1-5 par groupe, implications UI)",
+                            placeholder: "Admin KardaTech: [1-5]\n...\n\nImplications UI: ...\n",
+                            multiline: true
+                        },
+                        {
+                            id: "K2_accessibility",
+                            type: "checkbox",
+                            label: "Exigences d'accessibilité :",
+                            options: ["Support lecteur écran", "Mode contraste élevé", "Options texte agrandi", "Navigation clavier uniquement"]
+                        },
+                        {
+                            id: "K3_dashboard_ops",
+                            type: "textarea",
+                            label: "Tableau de bord Opérations KardaTech (vue principale, densité information)",
+                            placeholder: "Vue principale:\n- Carte sites\n- Alertes\n- Performance\n\nDensité: Minimal/Modérée/Dense\n",
+                            multiline: true
+                        },
+                        {
+                            id: "K3_dashboard_customer",
+                            type: "textarea",
+                            label: "Tableau de bord Clients Finaux (vue principale, ton émotionnel)",
+                            placeholder: "Vue principale:\n- Production actuelle\n- Économies\n- Impact CO2\n\nTon: Rassurant/Data-driven/Ludifié/Pro\n",
+                            multiline: true
+                        }
+                    ]
+                },
+                L: {
+                    id: "L",
+                    title: "Rapports & Analyses",
+                    description: "Rapports standards, exports personnalisés, analyses prédictives.",
+                    questions: [
+                        {
+                            id: "L1_standard",
+                            type: "table",
+                            label: "Rapports standards requis (nom, qui, fréquence, format, données clés)",
+                            columns: ["Nom Rapport", "Qui", "Fréquence", "Format", "Données Clés"],
+                            rows: [
+                                ["", "", "", "", ""],
+                                ["", "", "", "", ""],
+                                ["", "", "", "", ""]
+                            ]
+                        },
+                        {
+                            id: "L1_delivery",
+                            type: "textarea",
+                            label: "Distribution des rapports (comment livrés ? personnalisation ?)",
+                            placeholder: "Livraison: ...\nPersonnalisation: ...\n",
+                            multiline: true
+                        },
+                        {
+                            id: "L2_export",
+                            type: "textarea",
+                            label: "Flexibilité export (données brutes, tableaux personnalisés, planification, partage)",
+                            placeholder: "Export brutes: ...\nCustom dashboards: ...\nPlanification: ...\nPartage: ...\n",
+                            multiline: true
+                        },
+                        {
+                            id: "L2_limits",
+                            type: "textarea",
+                            label: "Limites export (quelles données ? restrictions conformité ?)",
+                            placeholder: "Limites: ...\nRestrictions conformité: ...\n",
+                            multiline: true
+                        },
+                        {
+                            id: "L3_predictive",
+                            type: "textarea",
+                            label: "Analyses prédictives (production, pannes, départ, revenus - horizon précision)",
+                            placeholder: "Prédire:\n- Production future\n- Pannes équipement\n...\nHorizon précision: ...\n",
+                            multiline: true
+                        },
+                        {
+                            id: "L3_benchmarking",
+                            type: "textarea",
+                            label: "Benchmarking et comparaison (données historiques, sites similaires, moyennes industrie, régionaux - différenciateur ?)",
+                            placeholder: "Comparer contre:\n- Historiques\n- Similaires\n- Moyennes\n- Régionaux\n\nDifférenciateur: ...\n",
+                            multiline: true
+                        }
+                    ]
+                },
+                M: {
+                    id: "M",
+                    title: "Formation & Intégration",
+                    description: "Flux intégration utilisateurs, documentation ressources, certification.",
+                    questions: [
+                        {
+                            id: "M1_onboarding_partner",
+                            type: "textarea",
+                            label: "Intégration Installateurs Partenaires (processus, qui forme, temps signup → productif)",
+                            placeholder: "Processus:\n1. Création compte\n2. ...\n\nQui forme: ...\nTemps cible: ...\n",
+                            multiline: true
+                        },
+                        {
+                            id: "M1_onboarding_customer",
+                            type: "textarea",
+                            label: "Intégration Clients Finaux (qui forme, concepts clés, sans formation possible ?)",
+                            placeholder: "Qui forme: ...\nConcepts clés: ...\nSans formation: ...\n",
+                            multiline: true
+                        },
+                        {
+                            id: "M2_resources",
+                            type: "checkbox",
+                            label: "Ressources d'aide disponibles :",
+                            options: [
+                                "Infobulles tooltips", "Boutons aide contextuels", "Tutoriel/assistant interactif",
+                                "Base connaissances consultable", "Assistant chatbot/IA", "Support chat direct",
+                                "Guide PDF", "Didacticiels vidéo", "FAQ", "Forum communautaire",
+                                "Support email/téléphone", "Formation personne"
+                            ]
+                        },
+                        {
+                            id: "M2_philosophy",
+                            type: "textarea",
+                            label: "Philosophie documentation (complète vs UI intuitive)",
+                            placeholder: "Philosophie: ...\n",
+                            multiline: true
+                        },
+                        {
+                            id: "M3_certification",
+                            type: "textarea",
+                            label: "Certification et formation avancée (installateurs certifiés ? niveaux compétence ? revenue formation ?)",
+                            placeholder: "Certification requise: ...\nNiveaux: ...\nRevenue: ...\n",
+                            multiline: true
+                        }
+                    ]
+                },
+                N: {
+                    id: "N",
+                    title: "Facteurs Environnementaux & Physiques",
+                    description: "Environnement exploitation et durabilité matérielle.",
+                    questions: [
+                        {
+                            id: "N1_location",
+                            type: "textarea",
+                            label: "Considérations emplacement (où déployé ? températures ? dangers ?)",
+                            placeholder: "Lieu déploiement:\n- ...\nTempératures: ...\nDangers: ...\n",
+                            multiline: true
+                        },
+                        {
+                            id: "N1_power",
+                            type: "textarea",
+                            label: "Considérations alimentation (perte courant, durée batterie secours)",
+                            placeholder: "Perte courant: ...\nDurée batterie: ...\n",
+                            multiline: true
+                        },
+                        {
+                            id: "N2_durability",
+                            type: "textarea",
+                            label: "Exigences fiabilité matérielle (durée vie, maintenance physique, pannes, diagnostics distants)",
+                            placeholder: "Durée vie: ...\nMaintenance physique: ...\nPannes: ...\nDiagnostics distants: ...\n",
+                            multiline: true
+                        }
+                    ]
+                },
+                O: {
+                    id: "O",
+                    title: "Gestion Cycle de Vie Client",
+                    description: "Intégration sites, renouvellements, désintégration, transferts.",
+                    questions: [
+                        {
+                            id: "O1_activation",
+                            type: "textarea",
+                            label: "Activation nouveaux sites (étapes, qui fait quoi, durée, activation en masse)",
+                            placeholder: "Étapes:\n1. Installation matérielle\n2. ...\n\nQui: ...\nDurée: ...\nMasse: ...\n",
+                            multiline: true
+                        },
+                        {
+                            id: "O2_renewal",
+                            type: "textarea",
+                            label: "Renouvellements et mises à niveau (durée contrat, processus, renouvellement, changements mi-contrat)",
+                            placeholder: "Durée contrat: ...\nProcessus: ...\nAu renouvellement: ...\nMi-contrat: ...\n",
+                            multiline: true
+                        },
+                        {
+                            id: "O3_offboarding",
+                            type: "textarea",
+                            label: "Désintégration et remise données (quoi gardé ? format ? décommissionnement ? frais ?)",
+                            placeholder: "Données conservées: ...\nFormat remise: ...\nDécommissionnement: ...\nFrais: ...\n",
+                            multiline: true
+                        },
+                        {
+                            id: "O4_transfer",
+                            type: "textarea",
+                            label: "Changements et transferts compte (acquisition, changement propriété - processus, données, droits, notifications)",
+                            placeholder: "Processus transfert: ...\nDonnées transférées: ...\nDroits données historiques: ...\nNotifications: ...\n",
+                            multiline: true
+                        }
+                    ]
+                },
+                P: {
+                    id: "P",
+                    title: "Tests & Assurance Qualité",
+                    description: "Philosophie tests, cadence, validation sécurité.",
+                    questions: [
+                        {
+                            id: "P1_philosophy",
+                            type: "textarea",
+                            label: "Philosophie tests (importance qualité, types non-négociables, tolérance bugs)",
+                            placeholder: "Importance: ...\nTypes non-négociables:\n- ...\nTolérance: ...\n",
+                            multiline: true
+                        },
+                        {
+                            id: "P2_cadence",
+                            type: "textarea",
+                            label: "Cadence et processus tests (quand ? qui ? réponse bugs critiques ?)",
+                            placeholder: "Quand: ...\nQui: ...\nBugs critiques: ...\n",
+                            multiline: true
+                        },
+                        {
+                            id: "P3_pentest",
+                            type: "textarea",
+                            label: "Tests de pénétration et audits sécurité (fréquence, qui, normes, partage résultats)",
+                            placeholder: "Fréquence: ...\nQui: ...\nNormes: ...\nPartage: ...\n",
+                            multiline: true
+                        }
+                    ]
+                },
+                Q: {
+                    id: "Q",
+                    title: "Reprise Après Sinistre & Continuité",
+                    description: "Objectifs reprise, stratégie sauvegarde, plans continuité.",
+                    questions: [
+                        {
+                            id: "Q1_objectives",
+                            type: "textarea",
+                            label: "Objectifs de reprise (RTO, RPO, définition sinistre, budget indisponibilité)",
+                            placeholder: "RTO: ...\nRPO: ...\nDéfinition sinistre: ...\nBudget indisponibilité: ...\n",
+                            multiline: true
+                        },
+                        {
+                            id: "Q2_backup",
+                            type: "textarea",
+                            label: "Stratégie sauvegarde (fréquence, stockage, rétention, chiffrement, restauration)",
+                            placeholder: "Fréquence: ...\nStockage: ...\nRétention: ...\nChiffrement: ...\nRestauration: ...\n",
+                            multiline: true
+                        },
+                        {
+                            id: "Q3_continuity",
+                            type: "textarea",
+                            label: "Plans continuité activités (qui responsable ? DC détruit ? staff indispo ? ransomware ? SLA client ?)",
+                            placeholder: "Responsable: ...\nDC détruit: ...\nStaff indispo: ...\nRansomware: ...\nSLA: ...\n",
+                            multiline: true
+                        }
+                    ]
+                },
+                R: {
+                    id: "R",
+                    title: "Localisation & Support Linguistique",
+                    description: "Exigences langues et personnalisation régionale.",
+                    questions: [
+                        {
+                            id: "R1_languages",
+                            type: "textarea",
+                            label: "Langues supportées (requises launch, futures, switch utilisateur, RTL arabe)",
+                            placeholder: "Requises: ...\nFutures: ...\nSwitch: ...\nRTL: ...\n",
+                            multiline: true
+                        },
+                        {
+                            id: "R2_regional",
+                            type: "textarea",
+                            label: "Personnalisation régionale (date/heure, nombre/devise, unités, culturel, réglementaire)",
+                            placeholder: "Date/heure: ...\nNombre/devise: ...\nUnités: ...\nCulturel: ...\nRéglementaire: ...\n",
+                            multiline: true
+                        }
+                    ]
+                },
+                S: {
+                    id: "S",
+                    title: "Accès Développeurs Tiers",
+                    description: "Disponibilité API, capacités restrictions, documentation support.",
+                    questions: [
+                        {
+                            id: "S1_availability",
+                            type: "textarea",
+                            label: "Disponibilité API (publique ? qui a besoin ? revenue ?)",
+                            placeholder: "Publique: ...\nQui a besoin: ...\nRevenue: ...\n",
+                            multiline: true
+                        },
+                        {
+                            id: "S2_capabilities",
+                            type: "textarea",
+                            label: "Capacités et restrictions API (quoi ? limites débit ? auth ? approbation ?)",
+                            placeholder: "Capacités: ...\nLimites débit: ...\nAuth: ...\nApprobation: ...\n",
+                            multiline: true
+                        },
+                        {
+                            id: "S2_restrictions",
+                            type: "textarea",
+                            label: "Restrictions accès données (brutes ? agrégées ? PII ? financières ? JAMAIS disponibles ?)",
+                            placeholder: "Peuvent accéder:\n- ...\n\nJAMAIS: ...\n",
+                            multiline: true
+                        },
+                        {
+                            id: "S3_documentation",
+                            type: "textarea",
+                            label: "Documentation et support API (approche ? support ? SDK ?)",
+                            placeholder: "Approche: ...\nSupport: ...\nSDK: ...\n",
+                            multiline: true
+                        }
+                    ]
+                }
+            }
+        };
+
+        // State
+        let answers = {};
+        let currentSection = null;
+        let pendingFileData = null;
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            loadFromStorage();
+            renderSectionNav();
+            updateProgress();
+            checkForDraft();
+        });
+
+        // Storage key
+        const STORAGE_KEY = 'knet_questionnaire_draft';
+        const AUTO_SAVE_KEY = 'knet_questionnaire_autosave';
+
+        // Load from localStorage
+        function loadFromStorage() {
+            const saved = localStorage.getItem(AUTO_SAVE_KEY);
+            if (saved) {
+                try {
+                    const data = JSON.parse(saved);
+                    answers = data.answers || {};
+                    questionnaireData.meta = data.meta || questionnaireData.meta;
+                } catch (e) {
+                    console.error('Error loading saved data:', e);
+                }
+            }
+        }
+
+        // Check for draft on load
+        function checkForDraft() {
+            const hasAnswers = Object.keys(answers).length > 0;
+            const notice = document.getElementById('draftNotice');
+            if (hasAnswers) {
+                notice.classList.add('show');
+            }
+        }
+
+        // Save to localStorage
+        function saveToStorage() {
+            const data = {
+                answers: answers,
+                meta: questionnaireData.meta
+            };
+            localStorage.setItem(AUTO_SAVE_KEY, JSON.stringify(data));
+        }
+
+        // Auto-save on input change
+        function autoSave(questionId, value) {
+            answers[questionId] = value;
+            questionnaireData.meta.lastUpdated = new Date().toISOString();
+            saveToStorage();
+            updateProgress();
+        }
+
+        // Discard draft
+        function discardDraft() {
+            if (confirm('Êtes-vous sûr de vouloir ignorer le brouillon ? Toutes les réponses seront supprimées.')) {
+                answers = {};
+                questionnaireData.meta.lastUpdated = '';
+                saveToStorage();
+                location.reload();
+            }
+        }
+
+        // Render section navigation
+        function renderSectionNav() {
+            const container = document.getElementById('sectionNav');
+            container.innerHTML = '';
+
+            for (const [key, section] of Object.entries(questionnaireData.sections)) {
+                const answeredQuestions = section.questions.filter(q => answers[q.id] && answers[q.id].trim() !== '');
+                const completion = answeredQuestions.length;
+                const total = section.questions.length;
+                const percent = Math.round((completion / total) * 100);
+
+                let statusClass = '';
+                let badge = '';
+
+                if (completion === 0) {
+                    badge = '<span class="section-badge badge-default">Non commencé</span>';
+                } else if (completion === total) {
+                    statusClass = 'completed';
+                    badge = '<span class="section-badge badge-success">✓ Complété</span>';
+                } else {
+                    statusClass = 'in-progress';
+                    badge = `<span class="section-badge badge-warning">${percent}%</span>`;
+                }
+
+                const card = document.createElement('div');
+                card.className = `section-card ${statusClass}`;
+                card.onclick = () => openSection(key);
+                card.innerHTML = `
+                    <h3>${section.id}. ${section.title}</h3>
+                    <p>${section.description}</p>
+                    ${badge}
+                `;
+                container.appendChild(card);
+            }
+        }
+
+        // Open section
+        function openSection(sectionId) {
+            currentSection = sectionId;
+            const section = questionnaireData.sections[sectionId];
+
+            document.getElementById('homeView').style.display = 'none';
+            document.getElementById('questionView').classList.add('active');
+            document.getElementById('currentSectionTitle').textContent = `${section.id}. ${section.title}`;
+            document.getElementById('sectionTitle').textContent = `${section.id}. ${section.title}`;
+            document.getElementById('sectionDescription').textContent = section.description;
+
+            renderQuestions(section.questions);
+            window.scrollTo(0, 0);
+        }
+
+        // Render questions
+        function renderQuestions(questions) {
+            const container = document.getElementById('questionsContainer');
+            container.innerHTML = '';
+
+            questions.forEach((q, index) => {
+                const block = document.createElement('div');
+                block.className = 'question-block';
+
+                const label = document.createElement('label');
+                label.className = 'question-label';
+                label.textContent = `${index + 1}. ${q.label}`;
+                block.appendChild(label);
+
+                const savedValue = answers[q.id] || '';
+
+                if (q.type === 'textarea') {
+                    const textarea = document.createElement('textarea');
+                    textarea.placeholder = q.placeholder || '';
+                    textarea.value = savedValue;
+                    textarea.oninput = (e) => autoSave(q.id, e.target.value);
+                    block.appendChild(textarea);
+                } else if (q.type === 'radio') {
+                    const group = document.createElement('div');
+                    group.className = 'radio-group';
+                    q.options.forEach(opt => {
+                        const item = document.createElement('label');
+                        item.className = 'radio-item';
+                        const radio = document.createElement('input');
+                        radio.type = 'radio';
+                        radio.name = q.id;
+                        radio.value = opt;
+                        radio.checked = savedValue === opt;
+                        radio.onchange = () => autoSave(q.id, opt);
+                        item.appendChild(radio);
+                        item.appendChild(document.createTextNode(opt));
+                        group.appendChild(item);
+                    });
+                    block.appendChild(group);
+                } else if (q.type === 'checkbox') {
+                    const group = document.createElement('div');
+                    group.className = 'checkbox-group';
+                    const savedArray = Array.isArray(savedValue) ? savedValue : [];
+                    q.options.forEach(opt => {
+                        const item = document.createElement('label');
+                        item.className = 'checkbox-item';
+                        const checkbox = document.createElement('input');
+                        checkbox.type = 'checkbox';
+                        checkbox.checked = savedArray.includes(opt);
+                        checkbox.onchange = () => {
+                            let newArray = [...savedArray];
+                            if (checkbox.checked) {
+                                newArray.push(opt);
+                            } else {
+                                newArray = newArray.filter(v => v !== opt);
+                            }
+                            autoSave(q.id, newArray);
+                        };
+                        item.appendChild(checkbox);
+                        item.appendChild(document.createTextNode(opt));
+                        group.appendChild(item);
+                    });
+                    block.appendChild(group);
+                } else if (q.type === 'table') {
+                    const table = document.createElement('table');
+                    const thead = document.createElement('thead');
+                    const headRow = document.createElement('tr');
+                    q.columns.forEach(col => {
+                        const th = document.createElement('th');
+                        th.textContent = col;
+                        headRow.appendChild(th);
+                    });
+                    thead.appendChild(headRow);
+                    table.appendChild(thead);
+
+                    const tbody = document.createElement('tbody');
+                    const savedTable = Array.isArray(savedValue) ? savedValue : q.rows.map(() => []);
+
+                    q.rows.forEach((row, rowIndex) => {
+                        const tr = document.createElement('tr');
+                        row.forEach((cell, cellIndex) => {
+                            const td = document.createElement('td');
+                            if (rowIndex === 0 && cellIndex === 0) {
+                                td.textContent = cell;
+                            } else {
+                                const input = document.createElement('input');
+                                input.type = 'text';
+                                input.value = savedTable[rowIndex]?.[cellIndex] || '';
+                                input.oninput = (e) => {
+                                    const newTable = [...savedTable];
+                                    if (!newTable[rowIndex]) newTable[rowIndex] = [];
+                                    newTable[rowIndex][cellIndex] = e.target.value;
+                                    autoSave(q.id, newTable);
+                                };
+                                td.appendChild(input);
+                            }
+                            tr.appendChild(td);
+                        });
+                        tbody.appendChild(tr);
+                    });
+                    table.appendChild(tbody);
+                    block.appendChild(table);
+                }
+
+                container.appendChild(block);
+            });
+        }
+
+        // Go home
+        function goHome() {
+            currentSection = null;
+            document.getElementById('homeView').style.display = 'block';
+            document.getElementById('questionView').classList.remove('active');
+            renderSectionNav();
+            updateProgress();
+        }
+
+        // Update progress
+        function updateProgress() {
+            let totalQuestions = 0;
+            let answeredQuestions = 0;
+
+            for (const section of Object.values(questionnaireData.sections)) {
+                totalQuestions += section.questions.length;
+                answeredQuestions += section.questions.filter(q => {
+                    const val = answers[q.id];
+                    if (Array.isArray(val)) return val.length > 0;
+                    return val && val.trim() !== '';
+                }).length;
+            }
+
+            const percent = totalQuestions > 0 ? Math.round((answeredQuestions / totalQuestions) * 100) : 0;
+            document.getElementById('progressText').textContent = `${percent}% complété`;
+            document.getElementById('progressFill').style.width = `${percent}%`;
+        }
+
+        // Save draft button
+        function saveDraft() {
+            saveToStorage();
+            alert('✓ Brouillon sauvegardé avec succès !');
+        }
+
+        // Save and continue
+        function saveAndContinue() {
+            saveDraft();
+            goHome();
+        }
+
+        // Download modal
+        function showDownloadModal() {
+            document.getElementById('downloadModal').classList.add('show');
+        }
+
+        // Upload modal
+        function showUploadModal() {
+            document.getElementById('uploadModal').classList.add('show');
+        }
+
+        // Close modals
+        function closeModals() {
+            document.getElementById('downloadModal').classList.remove('show');
+            document.getElementById('uploadModal').classList.remove('show');
+        }
+
+        // Download as JSON
+        function downloadJSON() {
+            const data = {
+                meta: questionnaireData.meta,
+                answers: answers
+            };
+            downloadFile(JSON.stringify(data, null, 2), 'knet-questionnaire-reponses.json', 'application/json');
+            closeModals();
+        }
+
+        // Download as Markdown
+        function downloadMarkdown() {
+            let md = `# Questionnaire K-NET - Réponses\n\n`;
+            md += `**Date:** ${new Date().toLocaleDateString('fr-FR')}\n`;
+            md += `**Version:** ${questionnaireData.meta.version}\n\n---\n\n`;
+
+            for (const [key, section] of Object.entries(questionnaireData.sections)) {
+                md += `## ${section.id}. ${section.title}\n\n`;
+                md += `${section.description}\n\n`;
+
+                section.questions.forEach((q, idx) => {
+                    md += `### Question ${idx + 1}\n\n`;
+                    md += `${q.label}\n\n**Réponse:**\n`;
+                    const val = answers[q.id];
+                    if (Array.isArray(val)) {
+                        if (val.length > 0) {
+                            val.forEach(v => md += `- ${v}\n`);
+                        } else {
+                            md += `_Non répondu_\n`;
+                        }
+                    } else if (val && val.trim()) {
+                        md += `${val}\n`;
+                    } else {
+                        md += `_Non répondu_\n`;
+                    }
+                    md += '\n---\n\n';
+                });
+            }
+
+            downloadFile(md, 'knet-questionnaire-reponses.md', 'text/markdown');
+            closeModals();
+        }
+
+        // Download as TXT
+        function downloadTxt() {
+            let txt = `QUESTIONNAIRE K-NET - REPONSES\n${'='.repeat(50)}\n\n`;
+            txt += `Date: ${new Date().toLocaleDateString('fr-FR')}\n`;
+            txt += `Version: ${questionnaireData.meta.version}\n\n`;
+
+            for (const [key, section] of Object.entries(questionnaireData.sections)) {
+                txt += `\n${'='.repeat(50)}\n`;
+                txt += `${section.id}. ${section.title}\n`;
+                txt += `${'='.repeat(50)}\n\n`;
+
+                section.questions.forEach((q, idx) => {
+                    txt += `\n[Question ${idx + 1}]\n${q.label}\n`;
+                    txt += `[Réponse]:\n`;
+                    const val = answers[q.id];
+                    if (Array.isArray(val)) {
+                        if (val.length > 0) {
+                            val.forEach(v => txt += `  - ${v}\n`);
+                        } else {
+                            txt += `  (Non répondu)\n`;
+                        }
+                    } else if (val && val.trim()) {
+                        txt += `${val}\n`;
+                    } else {
+                        txt += `  (Non répondu)\n`;
+                    }
+                });
+            }
+
+            downloadFile(txt, 'knet-questionnaire-reponses.txt', 'text/plain');
+            closeModals();
+        }
+
+        // Download file helper
+        function downloadFile(content, filename, type) {
+            const blob = new Blob([content], { type: type + ';charset=utf-8;' });
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = filename;
+            link.click();
+            URL.revokeObjectURL(link.href);
+        }
+
+        // Handle file upload
+        function handleFileUpload(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                try {
+                    pendingFileData = JSON.parse(e.target.result);
+                    if (pendingFileData.answers) {
+                        alert('Fichier chargé avec succès ! Cliquez sur "Importer" pour confirmer.');
+                    }
+                } catch (err) {
+                    alert('Erreur de lecture du fichier JSON. Vérifiez le format.');
+                    console.error(err);
+                }
+            };
+            reader.readAsText(file);
+        }
+
+        // Confirm upload
+        function confirmUpload() {
+            if (!pendingFileData) {
+                alert('Veuillez sélectionner un fichier d\'abord.');
+                return;
+            }
+
+            if (confirm('Importer les réponses ? Cela remplacera vos réponses actuelles pour les questions importées.')) {
+                answers = { ...answers, ...pendingFileData.answers };
+                if (pendingFileData.meta) {
+                    questionnaireData.meta = { ...questionnaireData.meta, ...pendingFileData.meta };
+                }
+                saveToStorage();
+                closeModals();
+                renderSectionNav();
+                updateProgress();
+                alert('✓ Import réussi !');
+                pendingFileData = null;
+                document.getElementById('fileInput').value = '';
+            }
+        }
+
+        // Click outside modal to close
+        window.onclick = (event) => {
+            if (event.target.classList.contains('modal')) {
+                closeModals();
+            }
+        };
+    </script>
+</body>
+</html>
